@@ -125,9 +125,15 @@
     <script>
         const socket = io(); ////IMP
 
-        socket.io(('server:message' , data=>{    ////
-            console.log(data);
+        socket.on(('server:message', (data) => {    ////
+            console.log('server:message', data);
         }))
+
+        socket.on('server:message', (data) => {
+            const item = document.createElement('li');
+            item.innerHTML = `<div>${data.text}</div>`;
+            messages.appendChild(item);
+        });
 
         const form = document.getElementById("chatForm");
         const input = document.getElementById("messageInput");
