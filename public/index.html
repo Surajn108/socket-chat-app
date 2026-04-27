@@ -123,53 +123,56 @@
 
     <script src="/socket.io/socket.io.js"></script> <!-----IMP-->
     <script>
-        const socket = io(); ////IMP
+       
+  const form = document.getElementById("chatForm");
+  const input = document.getElementById("messageInput");
+  const messagesEl = document.getElementById("messages");
 
-        socket.on(('server:message', (data) => {    ////
-            console.log('server:message', data);
-        }))
+  const socket = io();
 
-        socket.on('server:message', (data) => {
-            const item = document.createElement('li');
-            item.innerHTML = `<div>${data.text}</div>`;
-            messages.appendChild(item);
-        });
+  function formatTime(ts) {
+    return new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }
 
-        const form = document.getElementById("chatForm");
-        const input = document.getElementById("messageInput");
-        const messages = document.getElementById("messages");
+  function appendMessage({ text, at }, { mine }) {
+    const li = document.createElement("li");
+    if (mine) li.className = "you";
 
+    const textDiv = document.createElement("div");
+    textDiv.textContent = text;
 
-        function getCurrentTime() {
-            return new Date().toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit"
-            });
-        }
+    const small = document.createElement("small");
+    small.textContent = formatTime(at);
 
-        form.addEventListener("submit", (e) => {
-            e.preventDefault();
-            const text = input.value.trim();
-            if (!text) return;
+    li.appendChild(textDiv);
+    li.appendChild(small);
+    messagesEl.appendChild(li);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
 
-            const item = document.createElement("li");
-            item.className = "you";
-            item.innerHTML = `
-      <div>${text}</div>
-      <small style="display:block; margin-top:6px; opacity:0.7; font-size:12px;">
-        ${getCurrentTime()}
-      </small>
-    `;
+  socket.on("connect", () => console.log("connected", socket.id));
+  socket.on("disconnect", () => console.log("disconnected"));
 
-            socket.emit('user:message', { text }); /// IMP
+  socket.on("server:message", (data) => {
+    appendMessage(
+      { text: String(data?.text ?? ""), at: Number(data?.at ?? Date.now()) },
+      { mine: false }
+    );
+  });
 
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
 
-            console.log({ messages: text });
-            messages.appendChild(item);
+    const msg = { text, at: Date.now() };
+    appendMessage(msg, { mine: true });
+    socket.emit("user:message", { text });
 
-            input.value = "";
-            messages.scrollTop = messages.scrollHeight;
-        });
+    input.value = "";
+    input.focus();
+  });
+
     </script>
 </body>
 
