@@ -129,6 +129,7 @@
   const messagesEl = document.getElementById("messages");
 
   const socket = io();
+  
 
   function formatTime(ts) {
     return new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
