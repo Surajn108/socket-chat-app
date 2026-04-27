@@ -1,12 +1,166 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebSocket Chat</title>
-    
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Socket Chat</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 500px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 80vh;
+            max-height: 700px;
+        }
+
+        .chat-header {
+            padding: 14px 18px;
+            background: #2563eb;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .messages,
+        .welcome {
+            flex: 1;
+            list-style: none;
+            padding: 16px;
+            overflow-y: auto;
+            background: #f9fafb;
+        }
+
+        .messages li {
+            margin-bottom: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: #e5e7eb;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .messages li.you {
+            margin-left: auto;
+            background: #bfdbfe;
+        }
+
+        .chat-form {
+            display: flex;
+            gap: 10px;
+            padding: 12px;
+            border-top: 1px solid #e5e7eb;
+            background: #fff;
+        }
+
+        .chat-form input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .chat-form button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            background: #2563eb;
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .chat-form button:hover {
+            background: #1d4ed8;
+        }
+
+        .messages li small {
+            display: block;
+            margin-top: 6px;
+            opacity: 0.7;
+            font-size: 12px;
+        }
+    </style>
 </head>
+
 <body>
-    
+    <div class="chat-container">
+        <div class="chat-header">Chat Room</div>
+        <div class="welcome">
+            welcome in Chat Room! 👋🏻
+        </div>
+
+        <ul id="messages" class="messages"></ul>
+
+
+        <form id="chatForm" class="chat-form">
+            <input id="messageInput" type="text" placeholder="Type a message..." autocomplete="off" />
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script> <!-----IMP-->
+    <script>
+        const socket = io(); ////IMP
+
+        const form = document.getElementById("chatForm");
+        const input = document.getElementById("messageInput");
+        const messages = document.getElementById("messages");
+
+
+        function getCurrentTime() {
+            return new Date().toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit"
+            });
+        }
+
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const text = input.value.trim();
+            if (!text) return;
+
+            const item = document.createElement("li");
+            item.className = "you";
+            item.innerHTML = `
+      <div>${text}</div>
+      <small style="display:block; margin-top:6px; opacity:0.7; font-size:12px;">
+        ${getCurrentTime()}
+      </small>
+    `;
+
+            socket.emmit('user:message', { text }); /// IMP
+
+
+            console.log({ messages: text });
+            messages.appendChild(item);
+
+            input.value = "";
+            messages.scrollTop = messages.scrollHeight;
+        });
+    </script>
 </body>
+
 </html>
