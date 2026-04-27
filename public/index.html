@@ -125,6 +125,10 @@
     <script>
         const socket = io(); ////IMP
 
+        socket.io(('server:message' , data=>{    ////
+            console.log(data);
+        }))
+
         const form = document.getElementById("chatForm");
         const input = document.getElementById("messageInput");
         const messages = document.getElementById("messages");
@@ -151,7 +155,7 @@
       </small>
     `;
 
-            socket.emmit('user:message', { text }); /// IMP
+            socket.emit('user:message', { text }); /// IMP
 
 
             console.log({ messages: text });

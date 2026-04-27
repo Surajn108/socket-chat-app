@@ -16,13 +16,18 @@ async function main() {
   io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
 
-    socket.on('chat message', (msg) => {
-      io.emit('chat message', msg); // broadcast to everyone
+    socket.on('user:message' , (data)=>{
+        console.log("message from socket " , data);
+        socket.broadcast.emit('server:message' , data);
     });
 
-    socket.on('disconnect', () => {
-      console.log('User disconnected:', socket.id);
-    });
+    // socket.on('chat message', (msg) => {
+    //   io.emit('chat message', msg); // broadcast to everyone
+    //});
+
+    // socket.on('disconnect', () => {
+    //   console.log('User disconnected:', socket.id);
+    // });
   });
 
   server.listen(9000, () => {
